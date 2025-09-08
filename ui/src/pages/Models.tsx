@@ -4,7 +4,7 @@ import { LogPanel } from "./LogViewer";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useTheme } from "../contexts/ThemeProvider";
-import { RiEyeFill, RiEyeOffFill, RiStopCircleLine, RiSwapBoxFill } from "react-icons/ri";
+import { RiFileCopyLine, RiEyeFill, RiEyeOffFill, RiStopCircleLine, RiSwapBoxFill } from "react-icons/ri";
 
 export default function ModelsPage() {
   const { isNarrow } = useTheme();
@@ -41,6 +41,7 @@ function ModelsPanel() {
   const [isUnloading, setIsUnloading] = useState(false);
   const [showUnlisted, setShowUnlisted] = usePersistentState("showUnlisted", true);
   const [showIdorName, setShowIdorName] = usePersistentState<"id" | "name">("showIdorName", "id"); // true = show ID, false = show name
+  const [copiedModel, setCopiedModel] = useState<string | null>(null);
 
   const filteredModels = useMemo(() => {
     return models.filter((model) => showUnlisted || !model.unlisted);
@@ -61,7 +62,15 @@ function ModelsPanel() {
 
   const toggleIdorName = useCallback(() => {
     setShowIdorName((prev) => (prev === "name" ? "id" : "name"));
-  }, [showIdorName]);
+  }, [setShowIdorName]);
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedModel(text);
+    setTimeout(() => {
+      setCopiedModel(null);
+    }, 1000);
+  }, []);
 
   return (
     <div className="card h-full flex flex-col">
@@ -100,9 +109,23 @@ function ModelsPanel() {
             {filteredModels.map((model) => (
               <tr key={model.id} className="border-b hover:bg-secondary-hover border-border">
                 <td className={`p-2 ${model.unlisted ? "text-txtsecondary" : ""}`}>
-                  <a href={`/upstream/${model.id}/`} className={`underline`} target="_blank">
-                    {showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a href={`/upstream/${model.id}/`} className={`underline`} target="_blank">
+                      {showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id}
+                    </a>
+                    <button
+                      className="btn btn--sm"
+                      onClick={() =>
+                        copyToClipboard(showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id)
+                      }
+                    >
+                      {copiedModel === (showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id) ? (
+                        "Copied!"
+                      ) : (
+                        <RiFileCopyLine />
+                      )}
+                    </button>
+                  </div>
                   {model.description !== "" && (
                     <p className={model.unlisted ? "text-opacity-70" : ""}>
                       <em>{model.description}</em>

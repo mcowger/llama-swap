@@ -4,7 +4,7 @@ import { LogPanel } from "./LogViewer";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useTheme } from "../contexts/ThemeProvider";
-import { RiEyeFill, RiEyeOffFill, RiStopCircleLine, RiSwapBoxFill } from "react-icons/ri";
+import { RiEyeFill, RiEyeOffFill, RiStopCircleLine, RiSwapBoxFill, RiFileCopyLine, RiCheckFill } from "react-icons/ri";
 
 export default function ModelsPage() {
   const { isNarrow } = useTheme();
@@ -41,6 +41,16 @@ function ModelsPanel() {
   const [isUnloading, setIsUnloading] = useState(false);
   const [showUnlisted, setShowUnlisted] = usePersistentState("showUnlisted", true);
   const [showIdorName, setShowIdorName] = usePersistentState<"id" | "name">("showIdorName", "id"); // true = show ID, false = show name
+  const [copiedModelId, setCopiedModelId] = useState<string | null>(null);
+
+  const handleCopy = (modelId: string, modelName: string) => {
+    const toCopy = showIdorName === "id" ? modelId : modelName !== "" ? modelName : modelId;
+    navigator.clipboard.writeText(toCopy);
+    setCopiedModelId(modelId);
+    setTimeout(() => {
+      setCopiedModelId(null);
+    }, 2000);
+  };
 
   const filteredModels = useMemo(() => {
     return models.filter((model) => showUnlisted || !model.unlisted);
@@ -100,9 +110,14 @@ function ModelsPanel() {
             {filteredModels.map((model) => (
               <tr key={model.id} className="border-b hover:bg-secondary-hover border-border">
                 <td className={`p-2 ${model.unlisted ? "text-txtsecondary" : ""}`}>
-                  <a href={`/upstream/${model.id}/`} className={`underline`} target="_blank">
-                    {showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a href={`/upstream/${model.id}/`} className={`underline`} target="_blank">
+                      {showIdorName === "id" ? model.id : model.name !== "" ? model.name : model.id}
+                    </a>
+                    <button className="p-1 cursor-pointer" onClick={() => handleCopy(model.id, model.name)}>
+                      {copiedModelId === model.id ? <RiCheckFill className="text-success" /> : <RiFileCopyLine />}
+                    </button>
+                  </div>
                   {model.description !== "" && (
                     <p className={model.unlisted ? "text-opacity-70" : ""}>
                       <em>{model.description}</em>

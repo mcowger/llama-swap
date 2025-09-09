@@ -19,6 +19,9 @@ all: mac linux simple-responder
 clean:
 	rm -rf $(BUILD_DIR)
 
+push: all
+	docker buildx build --platform linux/amd64 --push -t docker.home.cowger.us/mcowger/llama-swap:vulkan .
+
 proxy/ui_dist/placeholder.txt:
 	mkdir -p proxy/ui_dist
 	touch $@

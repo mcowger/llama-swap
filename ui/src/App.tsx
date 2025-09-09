@@ -8,6 +8,7 @@ import ActivityPage from "./pages/Activity";
 import ConnectionStatusIcon from "./components/ConnectionStatus";
 import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import ConfigEditor from "./pages/ConfigEditor";
+import ResourceMonitor from "./components/ResourceMonitor";
 
 function App() {
   const { isNarrow, toggleTheme, isDarkMode, appTitle, setAppTitle, setConnectionState } = useTheme();
@@ -30,25 +31,28 @@ function App() {
       <div className="flex flex-col h-screen">
         <nav className="bg-surface border-b border-border p-2 h-[75px]">
           <div className="flex items-center justify-between mx-auto px-4 h-full">
-            {!isNarrow && (
-              <h1
-                contentEditable
-                suppressContentEditableWarning
-                className="flex items-center p-0 outline-none hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1"
-                onBlur={(e: FocusEvent<HTMLHeadingElement>) =>
-                  handleTitleChange(e.currentTarget.textContent || "(set title)")
-                }
-                onKeyDown={(e: KeyboardEvent<HTMLHeadingElement>) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleTitleChange(e.currentTarget.textContent || "(set title)");
-                    (e.currentTarget as HTMLElement).blur();
+            <div className="flex items-center space-x-4">
+              {!isNarrow && (
+                <h1
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="flex items-center p-0 outline-none hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-1"
+                  onBlur={(e: FocusEvent<HTMLHeadingElement>) =>
+                    handleTitleChange(e.currentTarget.textContent || "(set title)")
                   }
-                }}
-              >
-                {appTitle}
-              </h1>
-            )}
+                  onKeyDown={(e: KeyboardEvent<HTMLHeadingElement>) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleTitleChange(e.currentTarget.textContent || "(set title)");
+                      (e.currentTarget as HTMLElement).blur();
+                    }
+                  }}
+                >
+                  {appTitle}
+                </h1>
+              )}
+              <ResourceMonitor />
+            </div>
             <div className="flex items-center space-x-4">
               <NavLink
                 to="/"

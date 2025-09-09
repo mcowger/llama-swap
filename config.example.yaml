@@ -245,5 +245,33 @@ hooks:
         # - model names must match keys in the models sections
         # - when preloading multiple models at once, define a group
         #   otherwise models will be loaded and swapped out
+    #   - deepseek-coder-33b-instruct
+
+# hooks are used to perform actions on startup
+hooks:
+  on_startup:
+    # a list of models to preload on startup
     preload:
-      - "llama"
+      - llama-3-8b-instruct
+
+# resource monitoring allows you to execute commands to get metrics
+# and display them in the UI
+resourceMonitor:
+  # interval in seconds to execute the commands
+  interval: 5
+  # cpu usage
+  cpu:
+    command: "echo '10%'"
+    units: "%"
+  # memory usage
+  memory:
+    command: "echo '8GB'"
+    units: "GB"
+  # gpu usage
+  gpu:
+    command: "echo '50%'"
+    units: "%"
+  # gpu memory usage
+  gpuMemory:
+    command: "echo '4GB'"
+    units: "GB"

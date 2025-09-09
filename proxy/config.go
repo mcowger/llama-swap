@@ -166,6 +166,36 @@ type Config struct {
 
 	// hooks, see: #209
 	Hooks HooksConfig `yaml:"hooks"`
+
+	// resource monitoring, see: #273
+	ResourceMonitor ResourceMonitorConfig `yaml:"resourceMonitor"`
+}
+
+type ResourceMonitorConfig struct {
+	Interval int           `yaml:"interval"`
+	CPU      ResourceCmd `yaml:"cpu"`
+	Memory   ResourceCmd `yaml:"memory"`
+	GPU      ResourceCmd `yaml:"gpu"`
+	GPUMemory ResourceCmd `yaml:"gpuMemory"`
+}
+
+type ResourceCmd struct {
+	Command string `yaml:"command"`
+	Units   string `yaml:"units"`
+}
+
+func (r *ResourceMonitorConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type rawResourceMonitorConfig ResourceMonitorConfig
+	defaults := rawResourceMonitorConfig{
+		Interval: 5,
+	}
+
+	if err := unmarshal(&defaults); err != nil {
+		return err
+	}
+
+	*r = ResourceMonitorConfig(defaults)
+	return nil
 }
 
 func (c *Config) RealModelName(search string) (string, bool) {

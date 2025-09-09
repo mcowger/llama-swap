@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"sync"
 
@@ -32,6 +33,8 @@ type LogMonitor struct {
 	// logging levels
 	level  LogLevel
 	prefix string
+
+	logger *slog.Logger
 }
 
 func NewLogMonitor() *LogMonitor {
@@ -39,13 +42,19 @@ func NewLogMonitor() *LogMonitor {
 }
 
 func NewLogMonitorWriter(stdout io.Writer) *LogMonitor {
-	return &LogMonitor{
+	lm := &LogMonitor{
 		eventbus: event.NewDispatcherConfig(1000),
 		buffer:   ring.New(10 * 1024), // keep 10KB of buffered logs
 		stdout:   stdout,
 		level:    LevelInfo,
 		prefix:   "",
 	}
+	lm.logger = slog.New(slog.NewTextHandler(lm, nil))
+	return lm
+}
+
+func (w *LogMonitor) Logger() *slog.Logger {
+	return w.logger
 }
 
 func (w *LogMonitor) Write(p []byte) (n int, err error) {

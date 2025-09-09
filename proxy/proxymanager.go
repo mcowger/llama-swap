@@ -47,6 +47,8 @@ type ProxyManager struct {
 	configPath         string
 	reloadCallback     func()
 	watchConfigEnabled bool
+
+	resourceMonitor *ResourceMonitor
 }
 
 func New(config Config) *ProxyManager {
@@ -94,6 +96,10 @@ func New(config Config) *ProxyManager {
 		shutdownCtx:    shutdownCtx,
 		shutdownCancel: shutdownCancel,
 	}
+
+	// create the resource monitor
+	pm.resourceMonitor = NewResourceMonitor(config.ResourceMonitor, proxyLogger.Logger())
+	pm.resourceMonitor.Start()
 
 	// create the process groups
 	for groupID := range config.Groups {
@@ -314,6 +320,8 @@ func (pm *ProxyManager) Shutdown() {
 	defer pm.Unlock()
 
 	pm.proxyLogger.Debug("Shutdown() called in proxy manager")
+
+	pm.resourceMonitor.Stop()
 
 	var wg sync.WaitGroup
 	// Send shutdown signal to all process in groups

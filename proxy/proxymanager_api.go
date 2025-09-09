@@ -27,7 +27,12 @@ func addApiHandlers(pm *ProxyManager) {
 		apiGroup.GET("/metrics", pm.apiGetMetrics)
 		apiGroup.GET("/config", pm.apiGetConfig)
 		apiGroup.PUT("/config", pm.apiPutConfig)
+		apiGroup.GET("/resources", pm.apiGetResources)
 	}
+}
+
+func (pm *ProxyManager) apiGetResources(c *gin.Context) {
+	c.JSON(http.StatusOK, pm.resourceMonitor.GetMetrics())
 }
 
 func (pm *ProxyManager) apiUnloadAllModels(c *gin.Context) {
